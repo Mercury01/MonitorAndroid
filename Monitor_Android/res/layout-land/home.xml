@@ -5,14 +5,21 @@
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:gravity="center_horizontal"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="@dimen/activity_horizontal_margin" >
 
     <fragment
         android:id="@+id/homeFragment"
         android:name="thesis.vb.szt.android.HomeListAdapter"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         tools:layout="@layout/home_list_fragment" />
+
+	<fragment
+	    android:id="@+id/loginFragment"
+	    android:name="thesis.vb.szt.android.fragment.LoginFragment"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    tools:layout="@layout/login_fragment" />
 
 </LinearLayout>
