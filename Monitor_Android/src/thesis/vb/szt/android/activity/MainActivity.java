@@ -19,14 +19,15 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-//        LoginActivity loginActivity = new LoginActivity();
-        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-//        loginIntent.putExtra("responseXMLString", xmlString);
-        //searchIntent.putExtra("responseXMLString", result);
-		startActivityForResult(loginIntent, LOGIN_REQUEST);
+//        TODO undo comment
+//        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+//		startActivityForResult(loginIntent, LOGIN_REQUEST);
         
 		
+
+		Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+		homeIntent.putExtra("agentList", agentList);
+		startActivity(homeIntent);
 		
 		
 		

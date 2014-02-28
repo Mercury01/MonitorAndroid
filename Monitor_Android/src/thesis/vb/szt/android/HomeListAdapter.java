@@ -37,6 +37,8 @@ public class HomeListAdapter extends ArrayAdapter<AgentEntity> {
     private LayoutInflater inflater;
     private View view;
 	
+ 
+
 	public HomeListAdapter(Context context, int textViewResourceId, ArrayList<AgentEntity> agentList) {
 		super(context, textViewResourceId, agentList);
 		this.agentList = agentList;
@@ -48,8 +50,13 @@ public class HomeListAdapter extends ArrayAdapter<AgentEntity> {
     public View getView(int position, View convertView, ViewGroup parent) {
             view = convertView;
             if (view == null) {
-                view = inflater.inflate(R.layout.home_row_fragment, parent);
+                view = inflater.inflate(R.layout.home_row_fragment, null);
             }
+            
+            AgentEntity agent = agentList.get(position);
+            ((TextView)view.findViewById(R.id.row_text_1)).setText(agent.getText());
+            
+            
             return view;
             
 //            PlaceItem placeItem = items.get(position);

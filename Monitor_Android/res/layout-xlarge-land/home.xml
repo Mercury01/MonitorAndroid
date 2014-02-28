@@ -1,0 +1,39 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:baselineAligned="false"
+    android:gravity="center_horizontal"
+    android:orientation="horizontal" >
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="thesis.vb.szt.android.fragment.HomeListFragment"
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
+        tools:layout="@layout/home_list_fragment" />
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="thesis.vb.szt.android.fragment.LoginFragment"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
+        tools:layout="@layout/login_fragment" />
+
+<!--     <Button -->
+<!--         android:id="@+id/button1" -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_weight="1" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="Button" /> -->
+
+<!--     <Button -->
+<!--         android:id="@+id/button2" -->
+<!--         android:layout_width="fill_parent" -->
+<!--         android:layout_weight="1" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="Button" /> -->
+
+</LinearLayout>

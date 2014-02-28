@@ -12,6 +12,8 @@ import android.util.Log;
 
 public class HomeActivity extends FragmentActivity {
 	
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

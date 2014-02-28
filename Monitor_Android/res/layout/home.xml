@@ -10,7 +10,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="thesis.vb.szt.android.HomeListAdapter"
+        android:name="thesis.vb.szt.android.fragment.HomeListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/home_list_fragment" />
