@@ -1,15 +1,22 @@
 package thesis.vb.szt.android.activity;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import thesis.vb.szt.android.entity.AgentEntity;
-
+import thesis.vb.szt.android.model.Model;
+import thesis.vb.szt.android.model.Persistence;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity {
 	
@@ -20,14 +27,14 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        TODO undo comment
-//        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-//		startActivityForResult(loginIntent, LOGIN_REQUEST);
+        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+		startActivityForResult(loginIntent, LOGIN_REQUEST);
         
 		
 
-		Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
-		homeIntent.putExtra("agentList", agentList);
-		startActivity(homeIntent);
+//		Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+//		homeIntent.putExtra("agentList", agentList);
+//		startActivity(homeIntent);
 		
 		
 		
@@ -54,23 +61,41 @@ public class MainActivity extends FragmentActivity {
     	if (resultCode == RESULT_OK) {
     		switch(requestCode) {
 	    		case LOGIN_REQUEST:
-	    			if(resultCode == RESULT_OK) {
-		    			agentList = resultIntent.getParcelableArrayListExtra("resultList");
-		    			Bundle b = new Bundle();
-		    			b.putParcelableArrayList("agentsList", agentList);
+//		    			agentList = resultIntent.getParcelableArrayListExtra("resultList");
+//		    			Bundle b = new Bundle();
+//		    			b.putParcelableArrayList("agentsList", agentList);
 		    			
 		    			Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
-		    			homeIntent.putExtra("agentList", agentList);
+//		    			homeIntent.putExtra("agentList", agentList);
 		    			startActivity(homeIntent);
-	    			} else {
-	    				Log.e(getTag(), "Unable to login. Run should not reach this point.");
-	    			}
 	    			break;
     			default:
     				break;
     		}
+    	} else {
+    		Toast.makeText(getApplicationContext(), "Something went wrong. Please retry.", Toast.LENGTH_LONG).show();
     	}
+    }
+    
+    public boolean saveState() {
     	
+
+		PrintWriter pw = null;
+		Persistence persistence;
+		try {
+			String agentListFilename = "agentlist_for_" + Model.getUsername();
+			pw = new PrintWriter(openFileOutput(agentListFilename, Context.MODE_PRIVATE));
+			persistence = new Persistence(pw);
+			persistence.persistAgentList();
+			return true;
+		} catch (IOException e) {
+			Log.e(getTag(), "Unable to save application state", e);
+			return false;
+		} finally {
+			if(pw != null) {
+				pw.close();
+			}
+		}
     }
     
     private String getTag() {

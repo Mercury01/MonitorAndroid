@@ -1,33 +1,50 @@
 package thesis.vb.szt.android.entity;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import org.simpleframework.xml.Element;
 
-public class AgentEntity implements Parcelable {
+@Element(name="agent")
+public class AgentEntity {
 
+	@Element(name="id", required=false)
+	private int id;
 	
-	private String text;
+	@Element(name="address", required=false)
+	private String address;
 	
+	@Element(name="name", required=false)
+	private String name;
 	
-	
-	public String getText() {
-		return text;
+	public int getId() {
+		return id;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setId(int id) {
+		this.id = id;
 	}
 
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
+	public String getAddress() {
+		return address;
 	}
 
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		// TODO Auto-generated method stub
-		
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
 }
+
+/**
+ * 		<agent>
+ * 			<id>4</id>
+ * 			<address>50_E5_49_4C_65_11</address>
+ * 			<name>Dummy</name>
+ * 		</agent>
+*/

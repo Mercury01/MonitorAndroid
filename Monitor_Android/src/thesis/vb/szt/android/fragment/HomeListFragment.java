@@ -1,11 +1,12 @@
 package thesis.vb.szt.android.fragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import thesis.vb.szt.android.HomeListAdapter;
 import thesis.vb.szt.android.R;
 import thesis.vb.szt.android.entity.AgentEntity;
-
+import thesis.vb.szt.android.model.Model;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -31,17 +32,20 @@ public class HomeListFragment extends ListFragment {
 		
 		view = inflater.inflate(R.layout.home_list_fragment, container, false); 
 		
-		ArrayList<AgentEntity> list = new ArrayList<AgentEntity>();
-		for(int i = 0; i < 25; i++) {
-			AgentEntity entity = new AgentEntity();
-			entity.setText("Number " + i);
-			list.add(entity);
-		}
+//		ArrayList<AgentEntity> list = new ArrayList<AgentEntity>();
+//		for(int i = 0; i < 25; i++) {
+//			AgentEntity entity = new AgentEntity();
+//			entity.setText("Number " + i);
+//			list.add(entity);
+//		}
 		
 		
 //		setListAdapter(new ArrayAdapter<AgentEntity>(getActivity(), R.layout.home_row_fragment, list));
-		adapter = new HomeListAdapter(getActivity(), R.layout.home_row_fragment, list);
+
+		List<AgentEntity> agentList = Model.getAgentList() != null ? Model.getAgentList() : new ArrayList<AgentEntity>();
+		adapter = new HomeListAdapter(getActivity(), R.layout.home_row_fragment, agentList);
 	    setListAdapter(adapter);
+		
 		
 		return view;
 	}

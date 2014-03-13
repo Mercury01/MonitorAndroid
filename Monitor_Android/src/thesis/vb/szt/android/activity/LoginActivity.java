@@ -1,17 +1,14 @@
 package thesis.vb.szt.android.activity;
 
-import java.net.URI;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
 import thesis.vb.szt.android.R;
 import thesis.vb.szt.android.entity.AgentEntity;
+import thesis.vb.szt.android.model.Model;
 import thesis.vb.szt.android.network.LoginTask;
 import thesis.vb.szt.android.network.LoginTask.LoginTaskCompleteListener;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -47,25 +44,25 @@ public class LoginActivity extends FragmentActivity {
 		@Override
 		public void onClick(View v) {
 			Log.i(getTag(), "Login clicked");
-			String username = usernameText.getText().toString();
-			String password = passwordText.getText().toString();
+			Model.setUsername(usernameText.getText().toString());
+			Model.setPassword(passwordText.getText().toString());
 			
 			try {
 				loginTask = new LoginTask(new LoginTaskCompleteListener() {
 					
 					@Override
-					public void onTaskComplete(ArrayList<AgentEntity> resultList) {
+					public void onTaskComplete(List<AgentEntity> resultList) {
 						if(resultList == null) {
-							//TODO print invalid login
 							Toast t = Toast.makeText(getApplicationContext(), "Unable to login. Your credentials might be invalid.", Toast.LENGTH_SHORT);
 							t.show();
 						} else {
-							Log.i(getTag(), "Login result: " + resultList);
+							Log.i(getTag(), "Login successful");
 							
-							Intent resultIntent = new Intent();
-							resultIntent.putExtra("resultList", new ArrayList<AgentEntity>());
-							setResult(RESULT_OK, resultIntent);
+							Model.setAgentList(resultList);
 							
+//							Intent resultIntent = new Intent();
+//							resultIntent.putExtra("resultList", resultList);
+							setResult(RESULT_OK);
 							finish();
 						}
 					}

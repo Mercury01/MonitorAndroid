@@ -1,10 +1,10 @@
 package thesis.vb.szt.android.activity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import thesis.vb.szt.android.R;
 import thesis.vb.szt.android.entity.AgentEntity;
+import thesis.vb.szt.android.model.Model;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -19,9 +19,9 @@ public class HomeActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.home);
 		
-		Intent requestIntent = getIntent();
+//		Intent requestIntent = getIntent();
 //		List<AgentEntity> agentList = (ArrayList<AgentEntity>) requestIntent.getParcelableExtra("agentList");
-		List<AgentEntity> agentList = requestIntent.getParcelableArrayListExtra("agentList");
+		List<AgentEntity> agentList = Model.getAgentList();// requestIntent.getParcelableArrayListExtra("agentList");
 		
 		
 		Log.i(getTag(), "HomeActivity started");
