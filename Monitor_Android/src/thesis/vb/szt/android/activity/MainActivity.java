@@ -1,24 +1,21 @@
 package thesis.vb.szt.android.activity;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 import thesis.vb.szt.android.entity.AgentEntity;
 import thesis.vb.szt.android.model.Model;
-import thesis.vb.szt.android.model.Persistence;
-import android.content.Context;
+import thesis.vb.szt.android.tasks.LoadStateTask;
+import thesis.vb.szt.android.tasks.LoadStateTask.LoadStateTaskCompleteListener;
+import thesis.vb.szt.android.tasks.SaveStateTask;
+import thesis.vb.szt.android.tasks.SaveStateTask.SaveStateTaskCompleteListener;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends Activity {
 	
 	private final int LOGIN_REQUEST = 0;
 	private ArrayList<AgentEntity> agentList;
@@ -58,47 +55,86 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent resultIntent) {
     	super.onActivityResult(requestCode, resultCode, resultIntent);
-    	if (resultCode == RESULT_OK) {
-    		switch(requestCode) {
-	    		case LOGIN_REQUEST:
+		switch(requestCode) {
+    		case LOGIN_REQUEST:
+    	    	if (resultCode == RESULT_OK) { //TODO rearrange, load state
+    	    		if(Model.getAgentList() == null) {
+    	    			Toast.makeText(getApplicationContext(), "Unable to contact server. Loading reports from history", Toast.LENGTH_LONG).show();
+    	    			loadState();
+    	    		} else {
+    	    			saveState();
+    	    		}
 //		    			agentList = resultIntent.getParcelableArrayListExtra("resultList");
 //		    			Bundle b = new Bundle();
 //		    			b.putParcelableArrayList("agentsList", agentList);
-		    			
-		    			Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+	    			
+    	    			
+    	    			
+	    			Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
 //		    			homeIntent.putExtra("agentList", agentList);
-		    			startActivity(homeIntent);
+	    			startActivity(homeIntent);
+    	    	} else {
+    	    		if(Model.getAgentList() == null) {
+    	    			Toast.makeText(getApplicationContext(), "Unable to contact server. Loading reports from history", Toast.LENGTH_LONG).show();
+    	    			loadState();
+    	    		} 
+//    	    		finish();
+    	    	}
 	    			break;
-    			default:
-    				break;
-    		}
+			default:
+				break;
+		}
+    }
+    
+    @Override
+    protected void onStop() {
+    	
+		saveState();
+    	
+    	super.onStop();
+    }
+    
+    public void saveState() {
+    	if(Model.getAgentList() != null) {
+	    	SaveStateTask saveStateTask = new SaveStateTask(getApplicationContext(), new SaveStateTaskCompleteListener() {
+				@Override
+				public void onTaskComplete(String fileName) {
+					Toast.makeText(getApplicationContext(), "Successfully saved application state", Toast.LENGTH_SHORT).show();
+				}
+				
+				@Override
+				public void onError() {
+					Toast.makeText(getApplicationContext(), "An error occured while saving application state", Toast.LENGTH_SHORT).show();
+				}
+			});
+	    	saveStateTask.execute(new Void[0]);
     	} else {
-    		Toast.makeText(getApplicationContext(), "Something went wrong. Please retry.", Toast.LENGTH_LONG).show();
+    		Log.e(getTag(), "Unable to save state. Agent list is null");
     	}
     }
     
-    public boolean saveState() {
-    	
-
-		PrintWriter pw = null;
-		Persistence persistence;
-		try {
-			String agentListFilename = "agentlist_for_" + Model.getUsername();
-			pw = new PrintWriter(openFileOutput(agentListFilename, Context.MODE_PRIVATE));
-			persistence = new Persistence(pw);
-			persistence.persistAgentList();
-			return true;
-		} catch (IOException e) {
-			Log.e(getTag(), "Unable to save application state", e);
-			return false;
-		} finally {
-			if(pw != null) {
-				pw.close();
+    public void loadState() {
+    	LoadStateTask loadStateTask = new LoadStateTask(getApplicationContext(), new LoadStateTaskCompleteListener() {
+			
+			@Override
+			public void onTaskComplete(String fileName) {
+				Toast.makeText(getApplicationContext(), "Successfully loaded application state", Toast.LENGTH_SHORT).show();
+				Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+				startActivity(homeIntent);
 			}
-		}
+			
+			@Override
+			public void onError() {
+				Toast.makeText(getApplicationContext(), "An error occured while loading application state", Toast.LENGTH_SHORT).show();
+			}
+		});
+    	loadStateTask.execute();
     }
+    
     
     private String getTag() {
 		return getClass().getName();
 	}
+    
+    
 }

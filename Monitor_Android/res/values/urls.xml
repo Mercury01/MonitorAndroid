@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="login">http://192.168.1.103:8080/monitor/android/test</string>
-
+<!--     <string name="login">http://80.98.156.180:8080/monitor/mobile/getAgents</string> -->
+<string name="login">http://192.168.1.102:8080/monitor/mobile/getAgents</string>
 </resources>

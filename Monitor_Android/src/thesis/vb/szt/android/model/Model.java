@@ -12,6 +12,7 @@ public class Model {
 	private static List<Map<String, String>> reportsList;
 	private static String username;
 	private static String passwordHash;
+	private static String encodedAgentList;
 	
 	
 	public static List<AgentEntity> getAgentList() {
@@ -53,7 +54,6 @@ public class Model {
 	
 	private static String sha1Hash( String toHash )
 	{
-		
 		StringBuffer hexStringBuffer = null;
 	    try
 	    {
@@ -75,6 +75,14 @@ public class Model {
 	    return hexStringBuffer == null ? null : hexStringBuffer.toString();
 	}
 	
+	public static String getEncodedAgentList() {
+		return encodedAgentList;
+	}
+
+	public static void setEncodedAgentList(String encodedAgentList) {
+		Model.encodedAgentList = encodedAgentList;
+	}
+
 	private static String getTag() {
 		return Model.class.getName();
 	}
