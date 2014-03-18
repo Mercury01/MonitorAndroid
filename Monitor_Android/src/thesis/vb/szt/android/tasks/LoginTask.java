@@ -55,9 +55,9 @@ public class LoginTask extends AsyncTask<String, Void, List<AgentEntity>> {
 		final String username = Model.getUsername();
 		final String password = Model.getPasswordHash();
 		final String url = params[0] + "?username=" + username + "&password=" + password;
+		Log.i(getTag(), "Connecting to: " + url);
 		httpget = new HttpGet(url);
 
-		//TODO timeout
 		HttpParams httpParameters = new BasicHttpParams();
 		// Set the timeout in milliseconds until a connection is established.
 		int timeoutConnection = 3000;

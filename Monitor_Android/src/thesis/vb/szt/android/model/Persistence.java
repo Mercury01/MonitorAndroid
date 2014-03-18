@@ -2,6 +2,7 @@ package thesis.vb.szt.android.model;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,12 +28,12 @@ import thesis.vb.szt.android.entity.AgentList;
  */
 public class Persistence {
 	
-	private PrintWriter writer;
-	private BufferedReader reader;
+	
+	private final static String AGENTLIST_FILE_PREFIX = "agentlist_for_";
+	private BufferedReader reader; //TODO read from both external and internal
 
-	public Persistence(PrintWriter writer) {
+	public Persistence() {
 		super();
-		this.writer = writer;
 	}
 	
 	public Persistence(BufferedReader reader) {
@@ -45,10 +46,40 @@ public class Persistence {
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean persistAgentListXml() throws IOException {
-		writer.print(Model.getEncodedAgentList());
-		writer.flush();
-		return true;
+	public boolean persistAgentListXmlToExternal() throws IOException {
+		String filename = getExternalFileName();
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(new File(filename));
+			pw.write(Model.getEncodedAgentList());
+			pw.flush();
+			return true;
+		} catch (Exception e) {
+			Log.e(getTag(), "Unable to persist agentlist to external storage", e);
+			return false;
+		} finally {
+			if(pw != null) {
+				pw.close();
+			}	
+		}
+	}
+	
+	public boolean persistAgentListXmlToInternal(Context context) {
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(context.openFileOutput(AGENTLIST_FILE_PREFIX + Model.getUsername(), Context.MODE_PRIVATE));
+			pw.write(Model.getEncodedAgentList());
+			pw.flush();
+			return true;
+		} catch (Exception e) {
+			Log.e(getTag(), "Unable to persist agentlist to internal storage", e);
+			return false;
+		} finally {
+			if(pw != null) {
+				pw.close();
+			}	
+		}
+		
 	}
 	
 	/**
@@ -56,17 +87,45 @@ public class Persistence {
 	 * @return
 	 * @throws IOException
 	 */
-	public String readAgentListXml() throws IOException {
-		String encodedAgentList = reader.readLine();
-		Model.setEncodedAgentList(encodedAgentList);
-		return encodedAgentList;
+	public String readAgentListXmlFromExternal() throws IOException {
+		String filename = getExternalFileName();
+		BufferedReader bw = null;
+		try {
+			bw = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
+			String encodedAgentList = bw.readLine();
+			Model.setEncodedAgentList(encodedAgentList);
+			return encodedAgentList;
+		} catch (Exception e) {
+			Log.e(getTag(), "Unable to read agentlist from external storage", e);
+			return "";
+		} finally {
+			if(bw != null) {
+				bw.close();
+			}	
+		}
 	}
 	
-//	private String getAgentLine(AgentEntity agentEntity) {
-//		return agentEntity.getId() + " "  +
-//				agentEntity.getName() + " " + 
-//				 agentEntity.getAddress();
-//	}
+	/**
+	 * Takes care of updating the Model as well
+	 * @return
+	 * @throws IOException
+	 */
+	public String readAgentListXmlFromInternal(Context context) throws IOException {
+		BufferedReader bw = null;
+		try {
+			bw = new BufferedReader(new InputStreamReader(context.openFileInput(AGENTLIST_FILE_PREFIX + Model.getUsername())));
+			String encodedAgentList = bw.readLine();
+			Model.setEncodedAgentList(encodedAgentList);
+			return encodedAgentList;
+		} catch (Exception e) {
+			Log.e(getTag(), "Unable to read agentlist from internal storage", e);
+			return "";
+		} finally {
+			if(bw != null) {
+				bw.close();
+			}	
+		}
+	}
 
 	public boolean persistReport() throws IOException {
 		final List<Map<String, String>> reportsList = Model.getReportsList();
@@ -92,6 +151,9 @@ public class Persistence {
 	
 	public static boolean checkOrCreateFile(File file) throws IOException{
 		boolean result = true;
+		File a = file.getParentFile();
+		boolean aa = file.getParentFile().exists() ;
+		boolean aaa = file.getParentFile().mkdir();
 		if(file.getParentFile() == null || ( !file.getParentFile().exists() && !file.getParentFile().mkdirs())) {
 			result = false;
 		}
@@ -101,12 +163,11 @@ public class Persistence {
 		return result;
 	}
 	
-	public static String getInternalFileName(Context context) {
-		return getExternalFileName(); //TODO 
-//		return context.getFilesDir() + "monitor/agentlist_for_" + Model.getUsername();
-	}
+//	private String getInternalFileName() {
+//		return Environment.getDataDirectory() + "/" + AGENTLIST_FILE_PREFIX + Model.getUsername();
+//	}
 	
-	public static String getExternalFileName() {
+	private String getExternalFileName() {
 		return Environment.getExternalStorageDirectory().getPath() + "/monitor/agentlist_for_" + Model.getUsername();
 	}
 	

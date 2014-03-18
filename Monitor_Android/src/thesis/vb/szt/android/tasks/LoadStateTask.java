@@ -1,10 +1,5 @@
 package thesis.vb.szt.android.tasks;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 
 import thesis.vb.szt.android.entity.AgentEntity;
@@ -19,9 +14,9 @@ public class LoadStateTask extends AsyncTask<Void, Void, Boolean> {
 
 	private LoadStateTaskCompleteListener listener;
 	private Context context;
-	private Persistence persistence;
-	private BufferedReader reader;
-	private String fileName;
+//	private Persistence persistence;
+//	private BufferedReader reader;
+//	private String fileName;
 	
 	public LoadStateTask(Context context, LoadStateTaskCompleteListener listener) {
 		this.context = context;
@@ -30,19 +25,35 @@ public class LoadStateTask extends AsyncTask<Void, Void, Boolean> {
 
 	@Override
 	protected Boolean doInBackground(Void... arg0) {
+		boolean isExternal = false;
+		Log.i(getTag(), "Loading state from: " + (isExternal ? "external" : "internal") + " storage");
+		boolean result = false;
+		Persistence persistence = new Persistence();
+		String encodedAgentList = "";
 		try {
-			if(true) { //TODO
-				fileName = Persistence.getInternalFileName(context);
-			} 
-			if (false || false) { //TODO Set to external, or failed
-				fileName = Persistence.getExternalFileName();
-			}
-			File file = new File(fileName);
-			Persistence.checkOrCreateFile(file);
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 			
-			Persistence persistence = new Persistence(reader);
-			String encodedAgentList = persistence.readAgentListXml();
+			if(isExternal) {
+//				fileName = Persistence.getInternalFileName(context);
+				encodedAgentList = persistence.readAgentListXmlFromExternal();
+				if(encodedAgentList != null) {
+					result = true;
+				}
+			} 
+			if (!isExternal || !result) { //If user set storage to external, or it failed to load from external
+				encodedAgentList = persistence.readAgentListXmlFromInternal(context);
+				if(encodedAgentList != null) {
+					result = true;
+				}
+			}
+//			Log.i(getTag(), "Loading state from: " + fileName);
+//			File file = new File(fileName);
+//			Persistence.checkOrCreateFile(file);
+//			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+//			
+//			Persistence persistence = new Persistence(reader);
+			
+//			String 
+			
 			List<AgentEntity> agentList = Persistence.unMarshalAgentList(Security.decodeString(encodedAgentList, null));	//TODO set key
 			if(agentList == null) {
 				return false;
@@ -51,23 +62,24 @@ public class LoadStateTask extends AsyncTask<Void, Void, Boolean> {
 				return true;
 			}
 		} catch (Exception e) {
-			Log.e(getTag(), "Unable to save application state", e);
+			Log.e(getTag(), "Unable to load application state", e);
 			return false;
-		} finally {
-			if(reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					Log.e(getTag(), "Unable to close file reader", e);
-				}
-			}
-		}
+		} 
+//		finally {
+//			if(reader != null) {
+//				try {
+//					reader.close();
+//				} catch (IOException e) {
+//					Log.e(getTag(), "Unable to close file reader", e);
+//				}
+//			}
+//		}
 	}
 	
 	@Override
 	protected void onPostExecute(Boolean result) {
 		if(result) {
-			listener.onTaskComplete(fileName);
+			listener.onTaskComplete();
 		} else {
 			listener.onError();
 		}
@@ -75,7 +87,7 @@ public class LoadStateTask extends AsyncTask<Void, Void, Boolean> {
 	}	
 	
 	public interface LoadStateTaskCompleteListener {
-		public abstract void onTaskComplete(String fileName);
+		public abstract void onTaskComplete();
 		public abstract void onError();
 	}
 	

@@ -17,9 +17,9 @@ public class SaveStateTask extends AsyncTask<Void, Void, Boolean> {
 
 	private SaveStateTaskCompleteListener listener;
 	private Context context;
-	private Persistence persistence;
-	private PrintWriter pw;
-	private String fileName;
+//	private Persistence persistence;
+//	private PrintWriter pw;
+//	private String fileName;
 	
 	public SaveStateTask(Context context, SaveStateTaskCompleteListener listener) {
 		super();
@@ -32,39 +32,43 @@ public class SaveStateTask extends AsyncTask<Void, Void, Boolean> {
 
 	@Override
 	protected Boolean doInBackground(Void... params) {
+		boolean isExternal = false;
+		Log.i(getTag(), "Saving state into: " + (isExternal ? "external" : "internal") + " storage");
+		boolean result = false;
+		Persistence persistence = new Persistence();
 		try {
 			//TODO internal-external
-			if(true) {
-//				final File dir = new File(context.getFilesDir() + "/nfs/guille/groce/users/nicholsk/workspace3/SQLTest");
-//				dir.mkdirs(); //create folders where write files
-//				final File file = new File(dir, "BlockForTest.txt");
-				fileName = Persistence.getInternalFileName(context);
+			if(isExternal) {
+				result = persistence.persistAgentListXmlToExternal();
 			} else {
-				fileName = Persistence.getExternalFileName();
+				result = persistence.persistAgentListXmlToInternal(context);
 			}
-			File file = new File(fileName);
-			if(!Persistence.checkOrCreateFile(file)) {
-				Log.e(getTag(), "File not found: " + fileName);
-			}
-			pw = new PrintWriter(new FileOutputStream(file));//context.openFileOutput(fileName, Context.MODE_PRIVATE));
+			return result;
 			
-			persistence = new Persistence(pw);
-			persistence.persistAgentListXml();
-			return true;
+//			File file = new File(fileName);
+//			if(!Persistence.checkOrCreateFile(file)) {
+//				Log.e(getTag(), "File not found: " + fileName);
+//			}
+//			pw = new PrintWriter(new FileOutputStream(file));//context.openFileOutput(fileName, Context.MODE_PRIVATE));
+			
+//			persistence = new Persistence(pw);
+//			persistence.persistAgentListXml();
+			
 		} catch (Exception e) {
 			Log.e(getTag(), "Unable to save application state", e);
 			return false;
-		} finally {
-			if(pw != null) {
-				pw.close();
-			}
-		}
+		} 
+//		finally {
+//			if(pw != null) {
+//				pw.close();
+//			}
+//		}
 	}
 	  
 	@Override
 	protected void onPostExecute(Boolean result) {
 		if(result) {
-			listener.onTaskComplete(fileName);
+			listener.onTaskComplete();
 		} else {
 			listener.onError();
 		}
@@ -72,7 +76,7 @@ public class SaveStateTask extends AsyncTask<Void, Void, Boolean> {
 	}	
 	
 	public interface SaveStateTaskCompleteListener {
-		public abstract void onTaskComplete(String fileName);
+		public abstract void onTaskComplete();
 		public abstract void onError();
 	}
 	

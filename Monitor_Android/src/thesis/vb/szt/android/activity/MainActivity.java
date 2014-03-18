@@ -1,5 +1,11 @@
 package thesis.vb.szt.android.activity;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import thesis.vb.szt.android.entity.AgentEntity;
@@ -62,6 +68,22 @@ public class MainActivity extends Activity {
     	    			Toast.makeText(getApplicationContext(), "Unable to contact server. Loading reports from history", Toast.LENGTH_LONG).show();
     	    			loadState();
     	    		} else {
+//    	    			try {
+//    	    				FileOutputStream fos = openFileOutput("teszt", MODE_PRIVATE);
+//							PrintWriter pw = new PrintWriter(fos);
+//							pw.write("teszt");
+//							pw.flush();
+//							
+//							BufferedReader br = new BufferedReader(new InputStreamReader(openFileInput("teszt")));
+//							String s = br.readLine();
+//							s += "";
+//						} catch (FileNotFoundException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						} catch (IOException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
     	    			saveState();
     	    		}
 //		    			agentList = resultIntent.getParcelableArrayListExtra("resultList");
@@ -87,18 +109,16 @@ public class MainActivity extends Activity {
     }
     
     @Override
-    protected void onStop() {
-    	
+    protected void onDestroy() {
 		saveState();
-    	
-    	super.onStop();
+    	super.onDestroy();
     }
     
     public void saveState() {
     	if(Model.getAgentList() != null) {
 	    	SaveStateTask saveStateTask = new SaveStateTask(getApplicationContext(), new SaveStateTaskCompleteListener() {
 				@Override
-				public void onTaskComplete(String fileName) {
+				public void onTaskComplete() {
 					Toast.makeText(getApplicationContext(), "Successfully saved application state", Toast.LENGTH_SHORT).show();
 				}
 				
@@ -117,7 +137,7 @@ public class MainActivity extends Activity {
     	LoadStateTask loadStateTask = new LoadStateTask(getApplicationContext(), new LoadStateTaskCompleteListener() {
 			
 			@Override
-			public void onTaskComplete(String fileName) {
+			public void onTaskComplete() {
 				Toast.makeText(getApplicationContext(), "Successfully loaded application state", Toast.LENGTH_SHORT).show();
 				Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
 				startActivity(homeIntent);

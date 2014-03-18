@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -36,6 +37,16 @@ public class LoginActivity extends FragmentActivity {
 		loginButton.setOnClickListener(new LoginButtonListener());
 		
 		usernameText = (EditText) findViewById(R.id.loginUsernameTextfield);
+		usernameText.setOnFocusChangeListener(new OnFocusChangeListener() {
+			
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if(!hasFocus) {
+					String username = ((EditText)v).getText().toString();
+					Model.setUsername(username);
+				}
+			}
+		});
 		passwordText = (EditText) findViewById(R.id.loginPasswordTextfield);
 	}
 	
