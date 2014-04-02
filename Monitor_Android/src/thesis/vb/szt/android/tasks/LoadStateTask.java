@@ -2,9 +2,12 @@ package thesis.vb.szt.android.tasks;
 
 import java.util.List;
 
+import javax.crypto.SecretKey;
+
 import thesis.vb.szt.android.entity.AgentEntity;
 import thesis.vb.szt.android.model.Model;
 import thesis.vb.szt.android.model.Persistence;
+import thesis.vb.szt.android.security.Keys;
 import thesis.vb.szt.android.security.Security;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -53,8 +56,8 @@ public class LoadStateTask extends AsyncTask<Void, Void, Boolean> {
 //			Persistence persistence = new Persistence(reader);
 			
 //			String 
-			
-			List<AgentEntity> agentList = Persistence.unMarshalAgentList(Security.decodeString(encodedAgentList, null));	//TODO set key
+			SecretKey key = Keys.generateSymmetricKeyForMobiles(Model.getPasswordHash());
+			List<AgentEntity> agentList = Persistence.unMarshalAgentList(Security.decodeString(encodedAgentList, key));
 			if(agentList == null) {
 				return false;
 			} else {

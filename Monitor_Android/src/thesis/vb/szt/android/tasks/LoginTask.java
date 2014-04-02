@@ -3,7 +3,11 @@ package thesis.vb.szt.android.tasks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
 import java.util.List;
+
+import javax.crypto.SecretKey;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,6 +23,7 @@ import org.apache.http.params.HttpParams;
 import thesis.vb.szt.android.entity.AgentEntity;
 import thesis.vb.szt.android.model.Model;
 import thesis.vb.szt.android.model.Persistence;
+import thesis.vb.szt.android.security.Keys;
 import thesis.vb.szt.android.security.Security;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -47,43 +52,58 @@ public class LoginTask extends AsyncTask<String, Void, List<AgentEntity>> {
 		
 		BufferedReader br = null;
 		HttpGet httpget = null;
+		HttpClient httpclient = null;
 		HttpResponse response;
 		
-		List<AgentEntity> agentList;
-		
-//		try {
 		final String username = Model.getUsername();
 		final String password = Model.getPasswordHash();
-		final String url = params[0] + "?username=" + username + "&password=" + password;
-		Log.i(getTag(), "Connecting to: " + url);
-		httpget = new HttpGet(url);
-
-		HttpParams httpParameters = new BasicHttpParams();
-		// Set the timeout in milliseconds until a connection is established.
-		int timeoutConnection = 3000;
-		HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-		// Set the default socket timeout (SO_TIMEOUT) 
-		// in milliseconds which is the timeout for waiting for data.
-		int timeoutSocket = 3000;
-		HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+		SecretKey key = null;
+		try {
+			
+			key = Keys.generateSymmetricKeyForMobiles(password);
+			String encryptedPassword = URLEncoder.encode(Security.encryptString(password, key), "UTF-8"); //Security.encryptString(password, key);
+			Log.i(getTag(), "Encrypted:  " + Security.encryptString(password, key));
+			Log.i(getTag(), "URLEncoded: " + encryptedPassword);
 		
-		HttpClient httpclient = new DefaultHttpClient(httpParameters);
+			final String url = params[0] + "?username=" + username + "&encryptedQuery=" + encryptedPassword;
+			Log.i(getTag(), "Connecting to: " + url);
+			httpget = new HttpGet(url);
+	
+			HttpParams httpParameters = new BasicHttpParams();
+			// Set the timeout in milliseconds until a connection is established.
+			int timeoutConnection = 3000;
+			HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+			// Set the default socket timeout (SO_TIMEOUT) 
+			// in milliseconds which is the timeout for waiting for data.
+			int timeoutSocket = 3000;
+			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+			
+			httpclient = new DefaultHttpClient(httpParameters);
+			
+			} catch (IOException e ) {
+				Log.e(getTag(), "Unable to encode password", e);
+				return null;
+			} catch (GeneralSecurityException e) {
+				Log.e(getTag(), "Unable to encrypt password", e);
+				return null;
+			}
 		
 		try{
 			Log.i(getTag(), "Reading http entity...");
 			response = httpclient.execute(httpget);								
 			
-			int responseCode = response.getStatusLine().getStatusCode(); //HttpStatus.SC_OK;
+			int responseCode = response.getStatusLine().getStatusCode();
 			String reason = response.getStatusLine().getReasonPhrase();
-			Log.i(getTag(), "Response http status: " + responseCode + " " + reason); //responseCode);
+			Log.i(getTag(), "Response http status: " + responseCode + " " + reason); 
 			
 			if(responseCode == HttpStatus.SC_OK){
 				HttpEntity entity = response.getEntity();
 				if (entity != null){
 					br = new BufferedReader(new InputStreamReader(entity.getContent()));
 					String encodedXml = br.readLine();
-					Model.setEncodedAgentList(Security.decodeString(encodedXml, null)); //TODO set key
-					return Persistence.unMarshalAgentList(encodedXml);
+					String deCodedXml = Security.decodeString(encodedXml, key);
+					Model.setEncodedAgentList(encodedXml);
+					return Persistence.unMarshalAgentList(deCodedXml);
 				}
 				else
 					Log.e(getTag(), "Login response list is empty");
