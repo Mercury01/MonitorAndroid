@@ -61,11 +61,11 @@ public class LoginTask extends AsyncTask<String, Void, List<AgentEntity>> {
 		try {
 			
 			key = Keys.generateSymmetricKeyForMobiles(password);
-			String encryptedPassword = URLEncoder.encode(Security.encryptString(password, key), "UTF-8"); //Security.encryptString(password, key);
-			Log.i(getTag(), "Encrypted:  " + Security.encryptString(password, key));
-			Log.i(getTag(), "URLEncoded: " + encryptedPassword);
+//			String encryptedPassword = URLEncoder.encode(Security.encryptString(password, key), "UTF-8"); //Security.encryptString(password, key);
+//			Log.i(getTag(), "Encrypted:  " + Security.encryptString(password, key));
+//			Log.i(getTag(), "URLEncoded: " + encryptedPassword);
 		
-			final String url = params[0] + "?username=" + username + "&encryptedQuery=" + encryptedPassword;
+			final String url = params[0] + "?username=" + username;// + "&encryptedQuery=" + encryptedPassword;
 			Log.i(getTag(), "Connecting to: " + url);
 			httpget = new HttpGet(url);
 	
@@ -83,10 +83,7 @@ public class LoginTask extends AsyncTask<String, Void, List<AgentEntity>> {
 			} catch (IOException e ) {
 				Log.e(getTag(), "Unable to encode password", e);
 				return null;
-			} catch (GeneralSecurityException e) {
-				Log.e(getTag(), "Unable to encrypt password", e);
-				return null;
-			}
+			} 
 		
 		try{
 			Log.i(getTag(), "Reading http entity...");
@@ -100,9 +97,9 @@ public class LoginTask extends AsyncTask<String, Void, List<AgentEntity>> {
 				HttpEntity entity = response.getEntity();
 				if (entity != null){
 					br = new BufferedReader(new InputStreamReader(entity.getContent()));
-					String encodedXml = br.readLine();
-					String deCodedXml = Security.decodeString(encodedXml, key);
-					Model.setEncodedAgentList(encodedXml);
+					String encryptedXml = br.readLine();
+					String deCodedXml = Security.decryptString(encryptedXml, key);
+					Model.setEncodedAgentList(encryptedXml);
 					return Persistence.unMarshalAgentList(deCodedXml);
 				}
 				else

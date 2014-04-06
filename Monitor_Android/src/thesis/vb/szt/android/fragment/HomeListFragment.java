@@ -61,5 +61,6 @@ public class HomeListFragment extends ListFragment {
 	  @Override
 	  public void onListItemClick(ListView l, View v, int position, long id) {
 	    Toast.makeText(getActivity(), "List item clicked", Toast.LENGTH_LONG).show();
+	    
 	  }
 }

@@ -57,7 +57,7 @@ public class LoadStateTask extends AsyncTask<Void, Void, Boolean> {
 			
 //			String 
 			SecretKey key = Keys.generateSymmetricKeyForMobiles(Model.getPasswordHash());
-			List<AgentEntity> agentList = Persistence.unMarshalAgentList(Security.decodeString(encodedAgentList, key));
+			List<AgentEntity> agentList = Persistence.unMarshalAgentList(Security.decryptString(encodedAgentList, key));
 			if(agentList == null) {
 				return false;
 			} else {

@@ -23,11 +23,6 @@ public class Security {
 	 * @throws GeneralSecurityException caused by encryption errors
 	 */
 	public static String encryptString(String plainString, SecretKey secret) throws IOException, GeneralSecurityException {
-//		Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding"); // /CBC/PKCS5Padding
-//		cipher.init(Cipher.ENCRYPT_MODE, secret);
-//
-//		return ApacheBase64.encodeBase64String(cipher.doFinal(plainString.getBytes("UTF-8")));
-		
 		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		cipher.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(iv));
 		byte[] result = cipher.doFinal(plainString.getBytes("UTF-8"));
@@ -40,7 +35,7 @@ public class Security {
 	
 	
 	
-	public static String decodeString(String encryptedString, SecretKey secret) throws IOException, GeneralSecurityException {
+	public static String decryptString(String encryptedString, SecretKey secret) throws IOException, GeneralSecurityException {
 		if (encryptedString != null && !encryptedString.isEmpty()) {
 			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
 			cipher.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(iv));
