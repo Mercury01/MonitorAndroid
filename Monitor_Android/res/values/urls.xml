@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <!--      <string name="login">http://80.98.156.180:8080/monitor/mobile/getAgents</string> -->
-<string name="login">http://192.168.1.104:8080/monitor/mobile/getAgents</string>
+<string name="login">http://80.98.156.180:8080/monitor/mobile/getAgents</string>
 <!-- Tibi -->
 <!-- <string name="login">http://188.6.87.186:8080/monitor/mobile/getAgents</string> -->
 
 
-<string name="getAgent">http://192.168.1.104:8080/monitor/mobile/getAgent</string>
+<string name="getAgent">http://80.98.156.180:8080/monitor/mobile/getAgent</string>
 </resources>

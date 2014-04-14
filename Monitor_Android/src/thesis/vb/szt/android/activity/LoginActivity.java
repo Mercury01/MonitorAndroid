@@ -69,7 +69,7 @@ public class LoginActivity extends FragmentActivity {
 	
 	@Override
 	protected void onPause() {
-		String username = usernameText.getText().toString();
+		String username = usernameText.getText().toString().trim();
 		Model.setUsername(username);
 		
 		String password = passwordText.getText().toString();
@@ -83,7 +83,7 @@ public class LoginActivity extends FragmentActivity {
 		@Override
 		public void onClick(View v) {
 			Log.i(getTag(), "Login clicked");
-			Model.setUsername(usernameText.getText().toString());
+			Model.setUsername(usernameText.getText().toString().trim());
 			Model.setPassword(passwordText.getText().toString());
 			
 			try {

@@ -8,11 +8,23 @@
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin" >
 
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="thesis.vb.szt.android.fragment.HomeListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout="@layout/home_list_fragment" />
+    <android.support.v4.view.ViewPager
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/home_view_pager"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	    
+	    <android.support.v4.view.PagerTabStrip
+	        android:id="@+id/pts_main"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" />
+	</android.support.v4.view.ViewPager>
+    
+<!--     <fragment -->
+<!--         android:id="@+id/homeFragment" -->
+<!--         android:name="thesis.vb.szt.android.fragment.HomeListFragment" -->
+<!--         android:layout_width="match_parent" -->
+<!--         android:layout_height="match_parent" -->
+<!--         tools:layout="@layout/home_list_fragment" /> -->
 
 </LinearLayout>

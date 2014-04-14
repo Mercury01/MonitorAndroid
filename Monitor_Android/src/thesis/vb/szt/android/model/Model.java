@@ -9,10 +9,13 @@ import android.util.Log;
 
 public class Model {
 	private static List<AgentEntity> agentList;
+	private static String encryptedAgentList;
+	
 	private static List<Map<String, String>> reportsList;
+	private static String encryptedReportList;
+	
 	private static String username;
 	private static String passwordHash;
-	private static String encodedAgentList;
 	
 	
 	public static List<AgentEntity> getAgentList() {
@@ -29,6 +32,14 @@ public class Model {
 
 	public static void setReportsList(List<Map<String, String>> reportsList) {
 		Model.reportsList = reportsList;
+	}
+
+	public static String getEncryptedReportList() {
+		return encryptedReportList;
+	}
+
+	public static void setEncryptedReportList(String encodedReportList) {
+		Model.encryptedReportList = encodedReportList;
 	}
 
 	public static String getUsername() {
@@ -75,12 +86,12 @@ public class Model {
 	    return hexStringBuffer == null ? null : hexStringBuffer.toString();
 	}
 	
-	public static String getEncodedAgentList() {
-		return encodedAgentList;
+	public static String getEncryptedAgentList() {
+		return encryptedAgentList;
 	}
 
-	public static void setEncodedAgentList(String encodedAgentList) {
-		Model.encodedAgentList = encodedAgentList;
+	public static void setEncryptedAgentList(String encryptedAgentList) {
+		Model.encryptedAgentList = encryptedAgentList;
 	}
 
 	private static String getTag() {
