@@ -1,112 +1,112 @@
 package thesis.vb.szt.android.activity;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.List;
 
+import thesis.vb.szt.android.R;
 import thesis.vb.szt.android.entity.AgentEntity;
 import thesis.vb.szt.android.model.Model;
 import thesis.vb.szt.android.tasks.LoadStateTask;
+import thesis.vb.szt.android.tasks.LoginTask;
 import thesis.vb.szt.android.tasks.LoadStateTask.LoadStateTaskCompleteListener;
+import thesis.vb.szt.android.tasks.LoginTask.LoginTaskCompleteListener;
 import thesis.vb.szt.android.tasks.SaveStateTask;
 import thesis.vb.szt.android.tasks.SaveStateTask.SaveStateTaskCompleteListener;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Menu;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
 	private final int LOGIN_REQUEST = 0;
-	private ArrayList<AgentEntity> agentList;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        TODO undo comment
-        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-		startActivityForResult(loginIntent, LOGIN_REQUEST);
         
-		
-
-//		Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
-//		homeIntent.putExtra("agentList", agentList);
-//		startActivity(homeIntent);
-		
-		
-		
-//        Static
-//        Fragment fragment = (LoginFragment) getSupportFragmentManager().findFragmentById(R.id.loginFragment);
-        
-//        Dynamic
-//        Fragment loginFragment = new LoginFragment();
-//        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//        ft.add(CONTENT_VIEW_ID, loginFragment).commit();
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean autoLogin = sharedPreferences.getBoolean("autoLogin", false);
+        String username = sharedPreferences.getString("username", "");
+        String password = sharedPreferences.getString("password", "");
+        boolean credentialsSet = (username != null && !username.isEmpty()) &&
+        							(password != null && !password.isEmpty());
+        if(!autoLogin || !credentialsSet) {
+	        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+			startActivityForResult(loginIntent, LOGIN_REQUEST);
+        } else {
+        	login();
+        }
     }
     
-    @Override
+    private void login() {
+    	Log.i(getTag(), "Login from main activity");
+		
+    	
+    	SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String username = sharedPreferences.getString("username", "");
+        String encryptedPassword = sharedPreferences.getString("password", "");
+        
+        Model.setUsername(username);
+    	Model.setEncryptedPassword(encryptedPassword);
+    	
+		try {
+			LoginTask loginTask = new LoginTask(new LoginTaskCompleteListener() {
+				
+				@Override
+				public void onTaskComplete(List<AgentEntity> resultList) {
+					if(resultList == null) {
+						Toast t = Toast.makeText(getApplicationContext(), "Unable to login. Please try again.", Toast.LENGTH_SHORT);
+						t.show();
+						Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+						startActivityForResult(loginIntent, LOGIN_REQUEST);
+					} else {
+						Log.i(getTag(), "Login successful");
+						Model.setAgentList(resultList);
+						startHomeActivity();
+					}
+				}
+			});
+			
+			final String url = getResources().getString(R.string.login);
+			loginTask.execute(url);
+		} catch (Exception e) {
+			Log.e(getTag(), "Unable to log in", e);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
     protected void onActivityResult (int requestCode, int resultCode, Intent resultIntent) {
     	super.onActivityResult(requestCode, resultCode, resultIntent);
 		switch(requestCode) {
     		case LOGIN_REQUEST:
     	    	if (resultCode == RESULT_OK) { //TODO rearrange, load state
-    	    		if(Model.getAgentList() == null) {
-    	    			Toast.makeText(getApplicationContext(), "Unable to contact server. Loading reports from history", Toast.LENGTH_LONG).show();
-    	    			loadState();
-    	    		} else {
-//    	    			try {
-//    	    				FileOutputStream fos = openFileOutput("teszt", MODE_PRIVATE);
-//							PrintWriter pw = new PrintWriter(fos);
-//							pw.write("teszt");
-//							pw.flush();
-//							
-//							BufferedReader br = new BufferedReader(new InputStreamReader(openFileInput("teszt")));
-//							String s = br.readLine();
-//							s += "";
-//						} catch (FileNotFoundException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						} catch (IOException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-    	    			saveState();
-    	    		}
-//		    			agentList = resultIntent.getParcelableArrayListExtra("resultList");
-//		    			Bundle b = new Bundle();
-//		    			b.putParcelableArrayList("agentsList", agentList);
-	    			
-    	    			
-    	    			
-	    			Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
-//		    			homeIntent.putExtra("agentList", agentList);
-	    			startActivity(homeIntent);
+    	    		startHomeActivity();
     	    	} else {
     	    		if(Model.getAgentList() == null) {
     	    			Toast.makeText(getApplicationContext(), "Unable to contact server. Loading reports from history", Toast.LENGTH_LONG).show();
     	    			loadState();
     	    		} 
-//    	    		finish();
     	    	}
-	    			break;
+    			break;
 			default:
 				break;
 		}
     }
+
+	private void startHomeActivity() {
+		if(Model.getAgentList() == null) {
+			Toast.makeText(getApplicationContext(), "Unable to contact server. Loading reports from history", Toast.LENGTH_LONG).show();
+			loadState();
+		} else {
+			saveState();
+		}
+		Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+		startActivity(homeIntent);
+	}
     
     @Override
     protected void onDestroy() {

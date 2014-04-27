@@ -12,7 +12,7 @@
         android:name="thesis.vb.szt.android.fragment.AgentListFragment"
         android:layout_width="fill_parent"
         android:layout_weight="1"
-        tools:layout="@layout/home_list_fragment" />
+        tools:layout="@layout/agent_list_fragment" />
 
     <fragment
         android:id="@+id/loginFragment"

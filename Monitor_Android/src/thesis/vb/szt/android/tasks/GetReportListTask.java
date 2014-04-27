@@ -141,12 +141,12 @@ public class GetReportListTask extends AsyncTask<String, Void, Boolean> {
 	
 	@Override
 	protected void onPostExecute(Boolean result) {
-		listener.onTaskComplete("FROM POST EXECUTE");
 		super.onPostExecute(result);
+		listener.onTaskComplete(result);
 	}
 	
 	public interface GetReportListTaskCompleteListener {
-		public void onTaskComplete (String xmlString);
+		public void onTaskComplete (Boolean result);
 	}
 
 	private String getTag() {

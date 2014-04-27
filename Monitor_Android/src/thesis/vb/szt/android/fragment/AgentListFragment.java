@@ -29,9 +29,9 @@ public class AgentListFragment extends ListFragment {
 			Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		
-		view = inflater.inflate(R.layout.home_list_fragment, container, false); 
+		view = inflater.inflate(R.layout.agent_list_fragment, container, false); 
 		
-		adapter = new HomeListAdapter(getActivity(), R.layout.home_row_fragment);
+		adapter = new HomeListAdapter(getActivity(), R.layout.agent_row_fragment);
 	    setListAdapter(adapter);
 		
 		return view;
@@ -69,7 +69,7 @@ public class AgentListFragment extends ListFragment {
 	    public View getView(int position, View convertView, ViewGroup parent) {
             view = convertView;
             if (view == null) {
-                view = inflater.inflate(R.layout.home_row_fragment, null);
+                view = inflater.inflate(R.layout.agent_row_fragment, null);
             }
             
             AgentEntity agent = Model.getAgentList().get(position);

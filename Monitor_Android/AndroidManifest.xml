@@ -31,7 +31,12 @@
         <activity 
             android:name="thesis.vb.szt.android.activity.HomeActivity">
         </activity>
-        
+        <activity 
+            android:name="thesis.vb.szt.android.activity.PreferencesActivity">
+        </activity>
+        <activity 
+            android:name="thesis.vb.szt.android.activity.PreferencesSupportActivity">
+        </activity>
         
     </application>
 

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import thesis.vb.szt.android.entity.AgentEntity;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class Model {
@@ -57,6 +59,10 @@ public class Model {
 	public static void setPassword(String password) {
 		Log.i(getTag(), "Encrypting password");
 		Model.passwordHash = sha1Hash(password);
+	}
+	
+	public static void setEncryptedPassword(String encryptedPassword) {
+		passwordHash = encryptedPassword;
 	}
 
 	public static void setUsername(String username) {

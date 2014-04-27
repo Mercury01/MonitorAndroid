@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,8 +19,10 @@ import org.simpleframework.xml.core.Persister;
 
 import thesis.vb.szt.android.entity.AgentEntity;
 import thesis.vb.szt.android.entity.AgentList;
+import thesis.vb.szt.android.entity.ReportEntity;
 import thesis.vb.szt.android.entity.ReportList;
 import thesis.vb.szt.android.entity.ReportListRequest;
+import thesis.vb.szt.android.entity.ReportProperty;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
@@ -195,10 +199,17 @@ public class Persistence {
 		Log.i(getTag(), "Parsing xml: \n" + decryptedXml);
 		try {	
 			Serializer serializer = new Persister();
-			ReportList l = serializer.read(ReportList.class, decryptedXml); 
-			//TODO convert return value
-			Log.i(getTag(), ""); 
-			return null;
+			ReportList reportList = serializer.read(ReportList.class, decryptedXml); 
+			List<Map<String,String>> reportListResult = new ArrayList<Map<String,String>>();
+			for (ReportEntity reportEntity : reportList.getReportEntity()) {
+				Map<String, String> report = new HashMap<String, String>();
+				for(ReportProperty property : reportEntity.getReport().getPropertyList()) {
+					report.put(property.getName(), property.getValue());
+				}
+				reportListResult.add(report);
+			}
+			Log.i(getTag(), "Successfully unmarshalled report list"); 
+			return reportListResult;
 		} catch (Exception e) {
 			Log.e(getTag(), "Unable to read agent list xml", e);
 			return null;

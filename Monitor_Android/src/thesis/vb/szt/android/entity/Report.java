@@ -5,8 +5,6 @@ import java.util.List;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 
-import android.util.Log;
-
 @Element(name = "report")
 public class Report
 {
@@ -20,7 +18,6 @@ public class Report
 
 	public void setPropertyList(List<ReportProperty> propertyList) {
 		this.propertyList = propertyList;
-		Log.i("DELETE THIS SHIT", "setProperty");
 	}
 	
 	/**

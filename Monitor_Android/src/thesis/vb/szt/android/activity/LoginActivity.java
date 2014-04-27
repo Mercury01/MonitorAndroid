@@ -16,13 +16,16 @@ import thesis.vb.szt.android.security.Security;
 import thesis.vb.szt.android.tasks.LoginTask;
 import thesis.vb.szt.android.tasks.LoginTask.LoginTaskCompleteListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -31,12 +34,16 @@ public class LoginActivity extends FragmentActivity {
 	private Button loginButton;
 	private EditText usernameText;
 	private EditText passwordText;
+	private CheckBox autoLoginCheckbox;
 	
 	private LoginTask loginTask;
+	private SharedPreferences sharedPreferences;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		setContentView(R.layout.login);
 		
 		
@@ -44,27 +51,12 @@ public class LoginActivity extends FragmentActivity {
 		loginButton.setOnClickListener(new LoginButtonListener());
 		
 		usernameText = (EditText) findViewById(R.id.loginUsernameTextfield);
-//		usernameText.setOnFocusChangeListener(new OnFocusChangeListener() {
-//			
-//			@Override
-//			public void onFocusChange(View v, boolean hasFocus) {
-//				if(!hasFocus) {
-//					String username = ((EditText)v).getText().toString();
-//					Model.setUsername(username);
-//				}
-//			}
-//		});
 		passwordText = (EditText) findViewById(R.id.loginPasswordTextfield);
-//		passwordText.setOnFocusChangeListener(new OnFocusChangeListener() {
-//			
-//			@Override
-//			public void onFocusChange(View v, boolean hasFocus) {
-//				if(!hasFocus) {
-//					String password = ((EditText)v).getText().toString();
-//					Model.setPassword(password);
-//				}
-//			}
-//		});
+
+		boolean isAutoLoginActivated = sharedPreferences.getBoolean("autoLogin", false);
+		
+		autoLoginCheckbox = (CheckBox) findViewById(R.id.loginAutoCheckbox);
+		autoLoginCheckbox.setChecked(isAutoLoginActivated);
 	}
 	
 	@Override
@@ -85,6 +77,8 @@ public class LoginActivity extends FragmentActivity {
 			Log.i(getTag(), "Login clicked");
 			Model.setUsername(usernameText.getText().toString().trim());
 			Model.setPassword(passwordText.getText().toString());
+			
+			//TODO set autologin
 			
 			try {
 				loginTask = new LoginTask(new LoginTaskCompleteListener() {
@@ -107,13 +101,16 @@ public class LoginActivity extends FragmentActivity {
 					}
 				});
 				
-				
-				
-				
 //				loginTask.execute("http://www.google.com");
 //				loginTask.execute("http://192.168.1.104:8080/monitor/android/test");
 				final String url = getResources().getString(R.string.login);
 				loginTask.execute(url);
+				
+				
+				SharedPreferences.Editor editor = sharedPreferences.edit();
+				editor.putString("username", Model.getUsername());
+				editor.putString("password", Model.getPasswordHash());
+				editor.apply();	
 				
 //				loginTask.execute(new URI("http", null, "192.168.1.1", 8080, "/monitor/android/test", null, null).toASCIIString());
 			} catch (Exception e) {
