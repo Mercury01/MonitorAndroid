@@ -20,7 +20,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +34,7 @@ public class HomeActivity extends FragmentActivity implements DetailsUpdateListe
 	private final int PAGE_NUM = 3;
 	private ViewPager viewPager;
 	private PagerAdapter pagerAdapter;
+	private PagerTabStrip pagerTabStrip;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +45,36 @@ public class HomeActivity extends FragmentActivity implements DetailsUpdateListe
         viewPager = (ViewPager) findViewById(R.id.home_view_pager);
         pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
-
-        // 
-		
+        viewPager.setOnPageChangeListener(new OnPageChangeListener() {
+			
+			@Override
+			public void onPageSelected(int position) {
+				if(position == 1) {
+					((OnRefreshListener )((ScreenSlidePagerAdapter)pagerAdapter).getItem(position)).onRefresh();
+				}
+			}
+			
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+        
+        
+        pagerTabStrip = (PagerTabStrip) findViewById(R.id.pager_tab);
+        
 		Log.i(getTag(), "HomeActivity started");
+	}
+	
+	public interface OnRefreshListener {
+	    public void onRefresh();
 	}
 	
 	/** 

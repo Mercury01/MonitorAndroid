@@ -1,13 +1,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/details_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:baselineAligned="false"
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin" 
     android:gravity="center_horizontal">
-
+	<TextView 
+	    android:text="@string/no_agent_selected"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"/>
 <!--     <TextView -->
 <!--         android:id="@+id/detailsHeader" -->
 <!--         android:layout_width="match_parent" -->

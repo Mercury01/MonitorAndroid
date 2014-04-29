@@ -1,10 +1,10 @@
 package thesis.vb.szt.android.fragment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.Inflater;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -14,16 +14,22 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import thesis.vb.szt.android.R;
+import thesis.vb.szt.android.activity.HomeActivity.OnRefreshListener;
+import thesis.vb.szt.android.activity.PreferencesSupportActivity;
 import thesis.vb.szt.android.model.Model;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
-public class ChartFragment extends Fragment {
+public class ChartFragment extends Fragment implements OnRefreshListener{
 
 	private View view;
 	
@@ -32,6 +38,8 @@ public class ChartFragment extends Fragment {
 	private XYMultipleSeriesDataset dataset;
 	
 	private XYMultipleSeriesRenderer renderer;
+	
+	private boolean initialised = false;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,20 +59,23 @@ public class ChartFragment extends Fragment {
 		Log.i(getTag(), "DetailsFragment resumed");
 	}
 	
-	//TODO vmiért csak elforgatáskor mûködik
 	public void update() {
-		LinearLayout layout = (LinearLayout) view;//.findViewById(R.id.details_fragment);
-		layout.removeAllViews();
-        if (chart == null) {
-            initChart();
-            updateDataset();
-            chart = ChartFactory.getCubeLineChartView(getActivity(), dataset, renderer, 0.3f);
-            layout.addView(chart);
-        } else {
-        	updateDataset();
-            chart.repaint();
-        }
-//        chart.invalidate();
+		if (!initialised && Model.getReportsList() != null) {
+			LinearLayout layout = (LinearLayout) view;
+			layout.removeAllViews();
+	        if (chart == null) {
+	            initChart();
+	            updateDataset();
+	            chart = ChartFactory.getCubeLineChartView(getActivity(), dataset, renderer, 0.3f);
+	            layout.addView(chart);
+	        } else {
+	        	updateDataset();
+	            chart.repaint();
+	        }
+	        initialised = true;
+		} else {
+			initialised = false;
+		}
 		Log.i(getTag(), "DetailsFragment updated");
 	} 
 	
@@ -73,9 +84,13 @@ public class ChartFragment extends Fragment {
         
         renderer = new XYMultipleSeriesRenderer();
         renderer.setInScroll(true);
+        
+        renderer.setMargins(new int[]{0,0,0,0});
+        renderer.setApplyBackgroundColor(true);
+        renderer.setMarginsColor(Color.argb(0x00, 0x01, 0x01, 0x01));
+        renderer.setBackgroundColor(Color.TRANSPARENT);
     }
 
-	//TODO valami nincs felszabadítva
 	private void updateDataset() {
 		List<Map<String, String>> reportList = Model.getReportsList();
 		if(reportList == null) {
@@ -83,68 +98,46 @@ public class ChartFragment extends Fragment {
 			return;
 		}
 		
-		//TODO lehet nem is kell
 		dataset.clear();
+		
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		int seriesCount = sharedPreferences.getInt(PreferencesSupportActivity.CHART_KEY_COUNT, -1);
+		
+		List<XYSeries> seriesList = new ArrayList<XYSeries>(seriesCount);
 		
 		for (int i = 0; i < reportList.size(); i++) {
 			Map<String, String> report = reportList.get(i);
-			
-			Map<String, Integer> measured = new HashMap<String, Integer>();
-			measured.put("freePercent", 0);
-			measured.put("frequency", 1);
-			
-			for(Entry<String, Integer> property: measured.entrySet()) {
-				Log.i(getTag(), "Adding " + property.getKey() + " to chart");
-				XYSeries series;
-				if(property.getValue() >= dataset.getSeriesCount()) {
-					series = new XYSeries(property.getKey());
-					dataset.addSeries(series);
-					
-					XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-					renderer.addSeriesRenderer(currentRenderer);
-				} else {
-					series = dataset.getSeriesAt(property.getValue());
-				}
-				try {
-					
-					double x = i;
-					double y = Double.parseDouble(report.get(property.getKey()));
-					series.add(x, y);
-				} catch (NumberFormatException e) {
-					Log.e(getTag(), "Unable to set coordinates in chart", e);
+
+			int j = 0;
+			for(Entry<String, String> property: report.entrySet()) {
+				if(sharedPreferences.getBoolean(PreferencesSupportActivity.CHART_KEY_PREFIX + property.getKey(), false)) {
+					if(seriesList.size() <= j) {
+						seriesList.add(new XYSeries(property.getKey()));
+						XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
+						renderer.addSeriesRenderer(currentRenderer);
+					}
+					try {
+						seriesList.get(j).add(i, Integer.valueOf(property.getValue()));
+					} catch (Exception e) {
+						Log.w(getTag(), "Non numeric attribute selected for display in chart");
+						seriesList.get(j).add(i, 0);
+					}
+					j++;
 				}
 			}
-
 		}
+			
+		dataset.addAllSeries(seriesList);
 		Log.i(getTag(), "Chart dataset updated");
 	}
-	
-//    private void addSampleData() {
-//    
-//    	XYSeries currentSeries = dataset.getSeriesAt(0);
-//        currentSeries.add(1, 2);
-//        currentSeries.add(2, 3);
-//        currentSeries.add(3, 2);
-//        currentSeries.add(4, 5);
-//        currentSeries.add(5, 4);
-//    }
 
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//    }
-
-//    protected void onResume() {
-//        super.onResume();
-////        LinearLayout layout = (LinearLayout) findViewById(R.id.chart);
-//        LinearLayout layout = (LinearLayout) findViewById(R.id.details_fragment);
-//        if (mChart == null) {
-//            initChart();
-//            addSampleData();
-//            mChart = ChartFactory.getCubeLineChartView(this, mDataset, mRenderer, 0.3f);
-//            layout.addView(mChart);
-//        } else {
-//            mChart.repaint();
-//        }
-//    }
+	@Override
+	public void onRefresh() {
+		Log.i(getTag(), "Refresh chart");
+		if(!initialised) {
+			update();
+		} else {
+			updateDataset();
+		}
+	}
 }

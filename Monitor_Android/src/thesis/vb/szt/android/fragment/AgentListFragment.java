@@ -5,6 +5,7 @@ import thesis.vb.szt.android.entity.AgentEntity;
 import thesis.vb.szt.android.model.Model;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +25,8 @@ public class AgentListFragment extends ListFragment {
 	private DetailsUpdateListener listener;
 	private ArrayAdapter<AgentEntity> adapter;
 	private View view;
+	
+	private View previouslySelectedItem;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,9 +54,16 @@ public class AgentListFragment extends ListFragment {
 		}
 	
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
+	public void onListItemClick(ListView l, View selectedItem, int position, long id) {
 		String mac = Model.getAgentList().get(position).getAddress();
 		listener.onDetailsUpdate(mac);
+		selectedItem.setBackgroundColor(Color.argb(20, 120, 120, 140));
+		
+		if(previouslySelectedItem != null) {
+			previouslySelectedItem.setBackgroundColor(Color.WHITE);
+		}
+		
+		previouslySelectedItem = selectedItem;
 	}
 	  
 	private class HomeListAdapter extends ArrayAdapter<AgentEntity> {

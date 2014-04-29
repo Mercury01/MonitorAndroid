@@ -100,6 +100,10 @@ public class Model {
 		Model.encryptedAgentList = encryptedAgentList;
 	}
 
+	public static Map<String, String> getReport(int index) {
+		return reportsList.get(index);
+	}
+	
 	private static String getTag() {
 		return Model.class.getName();
 	}
