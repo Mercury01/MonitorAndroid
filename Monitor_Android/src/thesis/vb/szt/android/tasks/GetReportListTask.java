@@ -21,7 +21,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import thesis.vb.szt.android.entity.AgentEntity;
 import thesis.vb.szt.android.entity.ReportListRequest;
 import thesis.vb.szt.android.model.Model;
 import thesis.vb.szt.android.model.Persistence;
@@ -30,15 +29,24 @@ import thesis.vb.szt.android.security.Security;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class GetReportListTask extends AsyncTask<String, Void, Boolean> {
+public class GetReportListTask extends AsyncTask<String, Void, List<Map<String, String>>> {
 
 	private GetReportListTaskCompleteListener listener;
-//	private String result; //, error;
+	private String mac;
+	private int start;
+	private int limit;
+	private String timeStamp;
 	
-	public GetReportListTask (GetReportListTaskCompleteListener taskCompleteListener) throws ClassCastException {
+//	private String result; //, error;
+
+	public GetReportListTask (int start, int limit, String mac, String timeStamp, GetReportListTaskCompleteListener taskCompleteListener) throws ClassCastException {
 		super();
 			if(taskCompleteListener instanceof GetReportListTaskCompleteListener) {
+				this.start = start;
+				this.limit = limit;
+				this.mac = mac;
 				this.listener = taskCompleteListener;
+				this.timeStamp = timeStamp;
 				Log.i(getTag(), "LoginTask instantiated");
 			} else {
 				throw new ClassCastException("tascCompleteListener must implement LoginTaskCompleteListener");
@@ -51,7 +59,7 @@ public class GetReportListTask extends AsyncTask<String, Void, Boolean> {
 	 *  -URL of the service
 	 *  -Request entity
 	 */
-	protected Boolean doInBackground(String... params) {
+	protected List<Map<String, String>> doInBackground(String... params) {
 		
 		
 		BufferedReader br = null;
@@ -61,12 +69,15 @@ public class GetReportListTask extends AsyncTask<String, Void, Boolean> {
 		
 		final String username = Model.getUsername();
 		final String password = Model.getPasswordHash();
-		final String mac = params[1];
 		SecretKey key = null;
 		try {
 			
 			key = Keys.generateSymmetricKeyForMobiles(password);
-			ReportListRequest request = new ReportListRequest(mac, 0, 10); //TODO reverse order - get from parameters?
+//			String timestamp = null;
+//			if(Model.getReportsList() != null && Model.getReportsList().size() > 0)
+//				timestamp = Model.getReportsList().get(Model.getReportsList().size() - 1).get("timestamp");
+			
+			ReportListRequest request = new ReportListRequest(mac, start, limit, timeStamp);
 			String plainRequestString = Persistence.marshalReportListRequest(request);
 			
 			String encryptedRequest = Security.encryptString(plainRequestString, key);
@@ -81,21 +92,21 @@ public class GetReportListTask extends AsyncTask<String, Void, Boolean> {
 	
 			HttpParams httpParameters = new BasicHttpParams();
 			// Set the timeout in milliseconds until a connection is established.
-			int timeoutConnection = 3000;
+			int timeoutConnection = 3000000;
 			HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
 			// Set the default socket timeout (SO_TIMEOUT) 
 			// in milliseconds which is the timeout for waiting for data.
-			int timeoutSocket = 3000;
+			int timeoutSocket = 3000000;
 			HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 			
 			httpclient = new DefaultHttpClient(httpParameters);
 			
 			} catch (IOException e ) {
 				Log.e(getTag(), "Unable to encode password", e);
-				return false;
+				return null;
 			} catch (GeneralSecurityException e) {
 				Log.e(getTag(), "Unable to encrypt password", e);
-				return false;
+				return null;
 			}
 		
 		try{
@@ -112,20 +123,21 @@ public class GetReportListTask extends AsyncTask<String, Void, Boolean> {
 					br = new BufferedReader(new InputStreamReader(entity.getContent()));
 					String encryptedXml = br.readLine();
 					String decryptedXml = Security.decryptString(encryptedXml, key);
-					Model.setEncryptedReportList(encryptedXml);
-					Model.setReportsList(Persistence.unMarshalReportList(decryptedXml));
-					return true;
+//					Model.setEncryptedReportList(encryptedXml);	//TODO
+					List<Map<String, String>> reportList = Persistence.unMarshalReportList(decryptedXml);
+//					Model.setReportsList(reportList);
+					return reportList;
 				}
 				else
 					Log.e(getTag(), "Login response list is empty");
 			}
-			return false;
+			return null;
 		} catch (ConnectTimeoutException e) {
 			Log.e(getTag(), "Unable to execute login. Connection timed out.", e);
-			return false;
+			return null;
 		} catch (Exception e) {
 			Log.e(getTag(), "Unable to execute login", e);
-			return false;
+			return null;
 		} finally {
 			if (br!=null) 
 				try {
@@ -140,13 +152,13 @@ public class GetReportListTask extends AsyncTask<String, Void, Boolean> {
 	
 	
 	@Override
-	protected void onPostExecute(Boolean result) {
+	protected void onPostExecute(List<Map<String, String>> result) {
 		super.onPostExecute(result);
 		listener.onTaskComplete(result);
 	}
 	
 	public interface GetReportListTaskCompleteListener {
-		public void onTaskComplete (Boolean result);
+		public void onTaskComplete (List<Map<String, String>> result);
 	}
 
 	private String getTag() {

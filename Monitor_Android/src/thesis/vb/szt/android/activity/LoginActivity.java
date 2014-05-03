@@ -33,7 +33,7 @@ public class LoginActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		setContentView(R.layout.login);
 		
 		

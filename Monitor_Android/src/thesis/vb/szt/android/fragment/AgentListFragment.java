@@ -1,13 +1,21 @@
 package thesis.vb.szt.android.fragment;
 
+import java.util.List;
+import java.util.Map;
+
 import thesis.vb.szt.android.R;
+import thesis.vb.szt.android.activity.HomeActivity;
 import thesis.vb.szt.android.entity.AgentEntity;
 import thesis.vb.szt.android.model.Model;
+import thesis.vb.szt.android.tasks.GetReportListTask;
+import thesis.vb.szt.android.tasks.GetReportListTask.GetReportListTaskCompleteListener;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class AgentListFragment extends ListFragment {
+public class AgentListFragment extends ListFragment implements GetReportListTaskCompleteListener {
 	
 //	http://www.vogella.com/tutorials/AndroidListView/article.html#listfragments
 	
@@ -44,22 +52,20 @@ public class AgentListFragment extends ListFragment {
 	@Override
 		public void onAttach(Activity activity) {
 			Log.i(getTag(), "Agent list fragment attached");
-			try {
-				listener = (DetailsUpdateListener) activity;
-			} catch (ClassCastException e) {
-				Log.e(getTag(), "Attaching activity must implement DetailsUpdateListener", e);
-				Toast.makeText(getActivity(), "Unable to load details page", Toast.LENGTH_SHORT).show();
-			}
 			super.onAttach(activity);
 		}
 	
 	@Override
 	public void onListItemClick(ListView l, View selectedItem, int position, long id) {
 		String mac = Model.getAgentList().get(position).getAddress();
-		listener.onDetailsUpdate(mac);
+		Model.setMac(mac);
+//		listener.onDetailsUpdate(mac);
+		
+		new GetReportListTask(0, 10, Model.getMac(), null, this).execute(getResources().getString(R.string.getAgent));
+		
 		selectedItem.setBackgroundColor(Color.argb(20, 120, 120, 140));
 		
-		if(previouslySelectedItem != null) {
+		if(previouslySelectedItem != null && previouslySelectedItem != selectedItem) {
 			previouslySelectedItem.setBackgroundColor(Color.WHITE);
 		}
 		
@@ -92,5 +98,19 @@ public class AgentListFragment extends ListFragment {
 	  
 		public interface DetailsUpdateListener {
 			public void onDetailsUpdate(String mac);
+		}
+
+		@Override
+		public void onTaskComplete(List<Map<String, String>> result) {
+			Model.setReportsList(result);
+//			adapter.notifyDataSetChanged();
+			//TODO
+			Intent intent = new Intent(HomeActivity.ACTION);
+//			Intent intent = new Intent(HomeActivity.ACTION_REPLACE);
+			Activity activity = getActivity();
+			LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
+			
+			
+			
 		}
 }

@@ -3,6 +3,8 @@ package thesis.vb.szt.android.entity;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import thesis.vb.szt.android.R.string;
+
 @Root(name="request")
 public class ReportListRequest
 {	
@@ -16,12 +18,16 @@ public class ReportListRequest
 	//get this many reports 
 	@Element(name="limit", required=false)
 	private int limit;
+	
+	@Element(name="fromDate", required=false)
+	private String fromDate;
 
-	public ReportListRequest(String mac, int from, int limit) {
+	public ReportListRequest(String mac, int from, int limit, String timestamp) {
 		super();
 		this.mac = mac;
 		this.from = from;
 		this.limit = limit;
+		this.fromDate = timestamp;
 	}
 
 	public String getMac() {
@@ -46,5 +52,13 @@ public class ReportListRequest
 
 	public void setLimit(int limit) {
 		this.limit = limit;
+	}
+
+	public String getFromDate() {
+		return fromDate;
+	}
+
+	public void setFromDate(String fromDate) {
+		this.fromDate = fromDate;
 	}
 }

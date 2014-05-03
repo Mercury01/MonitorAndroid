@@ -12,6 +12,7 @@ import thesis.vb.szt.android.tasks.LoginTask.LoginTaskCompleteListener;
 import thesis.vb.szt.android.tasks.SaveStateTask;
 import thesis.vb.szt.android.tasks.SaveStateTask.SaveStateTaskCompleteListener;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 	
 	private final int LOGIN_REQUEST = 0;
+	private Context context;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +36,13 @@ public class MainActivity extends Activity {
         boolean credentialsSet = (username != null && !username.isEmpty()) &&
         							(password != null && !password.isEmpty());
         if(!autoLogin || !credentialsSet) {
-	        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+	        Intent loginIntent = new Intent(this, LoginActivity.class);
 			startActivityForResult(loginIntent, LOGIN_REQUEST);
         } else {
         	login();
         }
+        
+        context = this;
     }
     
     private void login() {
@@ -60,7 +64,7 @@ public class MainActivity extends Activity {
 					if(resultList == null) {
 						Toast t = Toast.makeText(getApplicationContext(), "Unable to login. Please try again.", Toast.LENGTH_SHORT);
 						t.show();
-						Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+						Intent loginIntent = new Intent(context, LoginActivity.class);
 						startActivityForResult(loginIntent, LOGIN_REQUEST);
 					} else {
 						Log.i(getTag(), "Login successful");
@@ -104,7 +108,7 @@ public class MainActivity extends Activity {
 		} else {
 			saveState();
 		}
-		Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+		Intent homeIntent = new Intent(this, HomeActivity.class);
 		startActivity(homeIntent);
 	}
     
@@ -116,7 +120,7 @@ public class MainActivity extends Activity {
     
     public void saveState() {
     	if(Model.getAgentList() != null) {
-	    	SaveStateTask saveStateTask = new SaveStateTask(getApplicationContext(), new SaveStateTaskCompleteListener() {
+	    	SaveStateTask saveStateTask = new SaveStateTask(this, new SaveStateTaskCompleteListener() {
 				@Override
 				public void onTaskComplete() {
 					Toast.makeText(getApplicationContext(), "Successfully saved application state", Toast.LENGTH_SHORT).show();
@@ -134,12 +138,12 @@ public class MainActivity extends Activity {
     }
     
     public void loadState() {
-    	LoadStateTask loadStateTask = new LoadStateTask(getApplicationContext(), new LoadStateTaskCompleteListener() {
+    	LoadStateTask loadStateTask = new LoadStateTask(this, new LoadStateTaskCompleteListener() {
 			
 			@Override
 			public void onTaskComplete() {
 				Toast.makeText(getApplicationContext(), "Successfully loaded application state", Toast.LENGTH_SHORT).show();
-				Intent homeIntent = new Intent(getApplicationContext(), HomeActivity.class);
+				Intent homeIntent = new Intent(context, HomeActivity.class);
 				startActivity(homeIntent);
 			}
 			

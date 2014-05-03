@@ -2,23 +2,27 @@ package thesis.vb.szt.android.activity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import thesis.vb.szt.android.R;
 import thesis.vb.szt.android.fragment.AgentListFragment;
 import thesis.vb.szt.android.fragment.AgentListFragment.DetailsUpdateListener;
 import thesis.vb.szt.android.fragment.ChartFragment;
 import thesis.vb.szt.android.fragment.ReportListFragment;
+import thesis.vb.szt.android.model.Model;
 import thesis.vb.szt.android.tasks.GetReportListTask;
 import thesis.vb.szt.android.tasks.GetReportListTask.GetReportListTaskCompleteListener;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
@@ -27,20 +31,25 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-public class HomeActivity extends FragmentActivity implements DetailsUpdateListener {
+public class HomeActivity extends FragmentActivity {
 	
 	private final int PAGE_NUM = 3;
 	private ViewPager viewPager;
 	private PagerAdapter pagerAdapter;
 	private PagerTabStrip pagerTabStrip;
+	private Context context;
+	
+	public static String ACTION = "UPDATE";
+	public static String ACTION_REPLACE = "REPLACE";
+	
+	private final int CHART_INDEX = 1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.home);
-		
+		context = this;
         // Instantiate a ViewPager and a PagerAdapter.
         viewPager = (ViewPager) findViewById(R.id.home_view_pager);
         pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
@@ -49,8 +58,9 @@ public class HomeActivity extends FragmentActivity implements DetailsUpdateListe
 			
 			@Override
 			public void onPageSelected(int position) {
-				if(position == 1) {
-					((OnRefreshListener )((ScreenSlidePagerAdapter)pagerAdapter).getItem(position)).onRefresh();
+				if(position == CHART_INDEX) {
+//					((OnRefreshListener )((ScreenSlidePagerAdapter)pagerAdapter).getItem(position)).onRefresh();
+					//TODO
 				}
 			}
 			
@@ -77,29 +87,43 @@ public class HomeActivity extends FragmentActivity implements DetailsUpdateListe
 	    public void onRefresh();
 	}
 	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		IntentFilter iff= new IntentFilter(ACTION);
+        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, iff);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(onNotice);
+	}
+	
 	/** 
 	 * Called when after a list item is clicked
 	 */
-	@Override
-	public void onDetailsUpdate(final String mac) {
-		
-		GetReportListTask grlt = new GetReportListTask(new GetReportListTaskCompleteListener() {
-			
-			@Override
-			public void onTaskComplete(Boolean result) {
-				if(result) {
-					Log.i(getTag(), "Updating details fragment");
-					pagerAdapter.notifyDataSetChanged();
-				} else {
-					Log.i(getTag(), "Cannot update details fragment");
-				}
-				
-			}
-		});
-		final String url = getResources().getString(R.string.getAgent);
-		grlt.execute(url, mac);
-		
-	}
+//	@Override
+//	public void onDetailsUpdate(final String mac) {
+//		
+//		GetReportListTask grlt = new GetReportListTask(0, 10, Model.getMac(), new GetReportListTaskCompleteListener() {
+//			
+//			@Override
+//			public void onTaskComplete(List<Map<String, String>> result) {
+//				if(result != null) {
+//					Model.setReportsList(result);
+////					Log.i(getTag(), "Updating details fragment");
+////					((OnRefreshListener )((ScreenSlidePagerAdapter)pagerAdapter).getItem(CHART_INDEX)).onRefresh();
+////					pagerAdapter.notifyDataSetChanged();
+//				} else {
+//					Log.i(getTag(), "Cannot update details fragment");
+//				}
+//			}
+//		});
+//		final String url = getResources().getString(R.string.getAgent);
+//		grlt.execute(url);
+//		
+//	}
 
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -136,20 +160,20 @@ public class HomeActivity extends FragmentActivity implements DetailsUpdateListe
 		public ScreenSlidePagerAdapter(FragmentManager fm) {
 			super(fm);
 			pages = new ArrayList<Fragment>(PAGE_NUM);
-			pages.add(0, Fragment.instantiate(getApplicationContext(), AgentListFragment.class.getName())); //TODO make main
-			pages.add(1, Fragment.instantiate(getApplicationContext(), ChartFragment.class.getName())); //TODO details
-			pages.add(2, Fragment.instantiate(getApplicationContext(), ReportListFragment.class.getName())); //TODO chart
+			pages.add(0, Fragment.instantiate(context, AgentListFragment.class.getName()));
+			pages.add(1, Fragment.instantiate(context, ChartFragment.class.getName()));
+			pages.add(2, Fragment.instantiate(context, ReportListFragment.class.getName()));
 		}
 
 		@Override
 		public void notifyDataSetChanged() {
 //			((DetailsFragment)pages.get(1)).update();
 			
-		    Fragment newFragment = new ChartFragment();
-		    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-		    transaction.replace(R.id.details_fragment, newFragment);
-		    transaction.addToBackStack(null);
-		    transaction.commit();
+//		    Fragment newFragment = new ChartFragment();
+//		    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//		    transaction.replace(R.id.details_fragment, newFragment);
+//		    transaction.addToBackStack(null);
+//		    transaction.commit();
 			
 			
 //			pages.set(2, new DetailsFragment());
@@ -172,4 +196,13 @@ public class HomeActivity extends FragmentActivity implements DetailsUpdateListe
 			return PAGE_NUM;
 		}
 	}
+	
+	private BroadcastReceiver onNotice = new BroadcastReceiver() {
+
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+//	    	((OnRefreshListener )((ScreenSlidePagerAdapter)pagerAdapter).getItem(CHART_INDEX)).onRefresh();
+//	    	pagerAdapter.notifyDataSetChanged();
+	    }
+	};
 }

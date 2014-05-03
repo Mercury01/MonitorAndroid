@@ -211,6 +211,7 @@ public class Persistence {
 			Log.i(getTag(), "Successfully unmarshalled report list"); 
 			return reportListResult;
 		} catch (Exception e) {
+			Log.e(getTag(), decryptedXml);
 			Log.e(getTag(), "Unable to read agent list xml", e);
 			return null;
 		} 
