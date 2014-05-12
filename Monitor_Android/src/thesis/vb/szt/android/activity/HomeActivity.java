@@ -6,7 +6,7 @@ import java.util.Map;
 
 import thesis.vb.szt.android.R;
 import thesis.vb.szt.android.fragment.AgentListFragment;
-import thesis.vb.szt.android.fragment.AgentListFragment.DetailsUpdateListener;
+//import thesis.vb.szt.android.fragment.AgentListFragment.DetailsUpdateListener;
 import thesis.vb.szt.android.fragment.ChartFragment;
 import thesis.vb.szt.android.fragment.ReportListFragment;
 import thesis.vb.szt.android.model.Model;

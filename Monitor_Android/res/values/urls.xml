@@ -7,4 +7,6 @@
 
 
 <string name="getAgent">http://80.98.156.180:8080/monitor/mobile/getAgent</string>
+
+<string name="getLatestReport">http://80.98.156.180:8080/monitor/mobile/getAgent</string>
 </resources>

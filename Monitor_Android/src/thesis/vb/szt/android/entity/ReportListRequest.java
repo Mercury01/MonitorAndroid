@@ -3,8 +3,6 @@ package thesis.vb.szt.android.entity;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-import thesis.vb.szt.android.R.string;
-
 @Root(name="request")
 public class ReportListRequest
 {	
@@ -22,6 +20,13 @@ public class ReportListRequest
 	@Element(name="fromDate", required=false)
 	private String fromDate;
 
+	public ReportListRequest(String mac, int limit, String timestamp) {
+		super();
+		this.mac = mac;
+		this.limit = limit;
+		this.fromDate = timestamp;
+	}
+	
 	public ReportListRequest(String mac, int from, int limit, String timestamp) {
 		super();
 		this.mac = mac;

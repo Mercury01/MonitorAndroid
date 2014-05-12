@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<!--  <PreferenceCategory  -->
+<!--         android:title="First Category" -->
+<!--         android:key="first_category"> -->
+        
+        <CheckBoxPreference 
+            android:key="autoLogin"
+            android:summary="Enable or disable automatic login after application start"
+            android:title="Auto login" 
+            android:defaultValue="true"
+            android:persistent="true"
+        />
+        
+<!--         <ListPreference  -->
+<!--             android:key="updates_interval" -->
+<!--             android:title="Updates interval" -->
+<!--             android:summary="Define how often updates will be performed" -->
+<!--             android:defaultValue="1000"  -->
+<!--             android:entries="@array/updateInterval" -->
+<!--             android:entryValues="@array/updateIntervalValues" -->
+<!--             android:dependency="perform_updates" -->
+<!--         />     -->
+            
+<!--     </PreferenceCategory> -->
+
+    <PreferenceCategory 
+        android:title="Report details"
+        android:key="report_details_category">
+       <ListPreference
+           android:key="reportlist_row_text1" 
+           android:title="Primary attribute"/>
+       <ListPreference
+           android:key="reportlist_row_text2" 
+           android:title="Secondary attribute"/>
+    </PreferenceCategory>
+    <PreferenceCategory 
+        android:title="Attributes on chart"
+        android:key="chart_category">
+       </PreferenceCategory>
+</PreferenceScreen>

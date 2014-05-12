@@ -37,6 +37,9 @@
         <activity 
             android:name="thesis.vb.szt.android.activity.PreferencesSupportActivity">
         </activity>
+        <activity 
+            android:name="thesis.vb.szt.android.activity.LatestReportsActivity">
+        </activity>
         
     </application>
 
