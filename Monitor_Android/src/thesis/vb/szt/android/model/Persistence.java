@@ -144,7 +144,7 @@ public class Persistence {
 	}
 	
 	public static List<AgentEntity> unMarshalAgentList(String xml) throws IOException {	
-		Log.i(getTag(), "Parsing xml: \n" + xml);
+//		Log.i(getTag(), "Parsing xml: \n" + xml);
 		try {	
 			Serializer serializer = new Persister();
 			AgentList l = serializer.read(AgentList.class, xml); 
@@ -196,7 +196,7 @@ public class Persistence {
 //		</reportList>
 	
 	public static List<Map<String,String>> unMarshalReportList(String decryptedXml) {
-		Log.i(getTag(), "Parsing xml: \n" + decryptedXml);
+//		Log.i(getTag(), "Parsing xml: \n" + decryptedXml);
 		try {	
 			Serializer serializer = new Persister();
 			ReportList reportList = serializer.read(ReportList.class, decryptedXml); 

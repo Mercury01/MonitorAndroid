@@ -54,28 +54,28 @@ public class HomeActivity extends FragmentActivity {
         viewPager = (ViewPager) findViewById(R.id.home_view_pager);
         pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(pagerAdapter);
-        viewPager.setOnPageChangeListener(new OnPageChangeListener() {
-			
-			@Override
-			public void onPageSelected(int position) {
-				if(position == CHART_INDEX) {
+//        viewPager.setOnPageChangeListener(new OnPageChangeListener() {
+//			
+//			@Override
+//			public void onPageSelected(int position) {
+//				if(position == CHART_INDEX) {
 //					((OnRefreshListener )((ScreenSlidePagerAdapter)pagerAdapter).getItem(position)).onRefresh();
-					//TODO
-				}
-			}
-			
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+//					//TODO
+//				}
+//			}
+//			
+//			@Override
+//			public void onPageScrolled(int arg0, float arg1, int arg2) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//			
+//			@Override
+//			public void onPageScrollStateChanged(int arg0) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
         
         
         pagerTabStrip = (PagerTabStrip) findViewById(R.id.pager_tab);

@@ -44,6 +44,9 @@ public class PreferencesSupportActivity extends PreferenceActivity implements On
 		addPreferencesFromResource(R.xml.preferences);
 		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		createPreferenceHierarchy();
+//		Editor editor = sharedPreferences.edit();
+//		editor.putInt(CHART_KEY_COUNT, checkboxesSelectedCount);
+//		editor.apply();
 	}
 
 	@Override
@@ -55,6 +58,7 @@ public class PreferencesSupportActivity extends PreferenceActivity implements On
 	  @Override
 	  protected void onPause() {
 	    super.onPause();
+	    
 	    sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
 	   }
 
@@ -161,6 +165,9 @@ public class PreferencesSupportActivity extends PreferenceActivity implements On
 			}
 		}
 	}
+	
+	
+	
 	//TODO check if its a numeric value
 	
 	

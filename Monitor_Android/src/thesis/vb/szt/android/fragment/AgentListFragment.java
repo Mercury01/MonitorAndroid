@@ -63,6 +63,9 @@ public class AgentListFragment extends ListFragment implements GetReportListTask
 	@Override
 		public void onResume() {
 			getListView().setOnItemLongClickListener(this);
+			if(previouslySelectedItem != null) {
+				previouslySelectedItem.setBackgroundColor(Color.argb(20, 120, 120, 140));
+			}
 			super.onResume();
 		}
 	

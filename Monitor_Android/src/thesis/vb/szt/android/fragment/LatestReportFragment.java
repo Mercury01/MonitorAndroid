@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import thesis.vb.szt.android.R;
 import thesis.vb.szt.android.tasks.GetLatestReportTask;
 import thesis.vb.szt.android.tasks.GetLatestReportTask.GetLatestReportTaskCompleteListener;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -22,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -47,9 +49,11 @@ private Map<String, String> lastReport;
 		mac = getActivity().getIntent().getStringExtra("mac");
 		
 		view = inflater.inflate(R.layout.latest_report_fragment, container); 
+		
 		table = (TableLayout) view.findViewById(R.id.latest_report_table);
 		
-		createTableHeader(mac);
+		TextView header = (TextView) view.findViewById(R.id.latest_report_header);
+		fillTableHeader(mac, header);
 		
 		HandlerThread hThread = new HandlerThread("HandlerThread");
 		hThread.start();
@@ -88,20 +92,19 @@ private Map<String, String> lastReport;
 		}
 	}
 	
-	private void createTableHeader(String mac) {
-		TextView title = new TextView(getActivity());
-		title.setText("Latest reports for " + mac);
-		title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
-        title.setGravity(Gravity.CENTER);
-        title.setTypeface(Typeface.SERIF, Typeface.BOLD);
+	private void fillTableHeader(String mac, TextView header) {
+		header.setText("Latest reports for " + mac);
+//		header.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+//        header.setGravity(Gravity.CENTER);
+//        header.setTypeface(Typeface.SERIF, Typeface.BOLD);
 		
-        TableRow.LayoutParams params = new TableRow.LayoutParams();
-        params.span = 2;
-        
-		TableRow headerRow = new TableRow(getActivity());
-		headerRow.addView(title, params);
+//        TableRow.LayoutParams params = new TableRow.LayoutParams();
+//        params.span = 2;
+//        
+//		TableRow headerRow = new TableRow(getActivity());
+//		headerRow.addView(header, params);
 		
-		table.addView(headerRow);
+//		table.addView(headerRow);
 	}
 	
 //	private void fillTable(String mac, String timeStamp) {
@@ -121,17 +124,20 @@ private Map<String, String> lastReport;
 		table.removeAllViews();
 		
 		for(Entry<String, String> property : report.entrySet()) {
+			if (getActivity() == null)
+				return;
 			TableRow row = new TableRow(getActivity());
 			TextView propertyName = new TextView(getActivity());
 			TextView propertyValue = new TextView(getActivity());
 			ImageView deltaImage = new ImageView(getActivity());
-//			Layoutp
-//			deltaImage.setLayoutParams(params);
+			
+//			LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+//			params.
+			
 			Bitmap bmp;
 		    int width=30;
 		    int height=30;
 		                                                                
-		    
 			
 			/**
 			 * Print delta indicators
@@ -148,6 +154,7 @@ private Map<String, String> lastReport;
 					if(currentValue == previousValue) {
 //						deltaImage.setImageResource(R.drawable.ic_ab_back_holo_light_am);
 						bmp=BitmapFactory.decodeResource(getResources(),R.drawable.ic_ab_back_holo_light_am);
+						
 					} else if (currentValue > previousValue) {
 //						deltaImage.setImageResource(R.drawable.ic_find_next_holo_light);
 						bmp=BitmapFactory.decodeResource(getResources(),R.drawable.ic_find_next_holo_light);
@@ -163,20 +170,43 @@ private Map<String, String> lastReport;
 			}
 			
 			propertyName.setText(property.getKey());
-			propertyValue.setText(property.getValue());
+//			propertyName.setWidth(table.getWidth() / 3);
+			if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+				propertyName.setWidth(380);
+			} else {
+				propertyName.setWidth(800);
+			}
+			
+			propertyValue.setText(breakValueString(property.getValue()));
 			
 			
-//			TableRow.LayoutParams params = new TableRow.LayoutParams();
+//			TableLayout.LayoutParams params = new TableLayout.LayoutParams();
 //	        params.width = 2;
+//			TableLayout.LayoutParams textViewParam = new TableLayout.LayoutParams
+//				     (TableLayout.LayoutParams.WRAP_CONTENT,
+//				     TableLayout.LayoutParams.WRAP_CONTENT,1f);
+//			textViewParam.setMargins(5, 0, 5,0);
+//			propertyName.setLayoutParams(params);
+//			propertyValue.setLayoutParams(textViewParam);
+			
 			
 			row.addView(propertyName);
-			row.addView(propertyValue);
 			row.addView(deltaImage);
+			row.addView(propertyValue);
 			
 			table.addView(row);
 		}
 		
 		lastReport = report;
+	}
+	
+	private String breakValueString(String value) {
+		String result = value;
+		if(result.length() > 10) {
+			result = result.substring(0, result.length() / 2) + "\n" + result.substring(result.length() / 2);
+		}
+			
+		return result;
 	}
 	
 	@Override

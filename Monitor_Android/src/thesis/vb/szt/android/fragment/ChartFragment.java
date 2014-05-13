@@ -31,9 +31,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class ChartFragment extends Fragment {
 
@@ -45,9 +48,6 @@ public class ChartFragment extends Fragment {
 
 	private XYMultipleSeriesRenderer renderer;
 
-//	private boolean initialised = false;
-	
-//	public static String ACTION = "UPDATE";
 	private final int[] colors = {Color.BLACK, Color.BLUE, Color.CYAN, Color.DKGRAY, Color.GRAY, Color.GREEN, Color.LTGRAY, Color.MAGENTA, Color.RED, Color.YELLOW};
 	
 
@@ -79,10 +79,18 @@ public class ChartFragment extends Fragment {
 	}
 
 	public void update() {
+		SharedPreferences sharedPreferences = PreferenceManager
+				.getDefaultSharedPreferences(getActivity());
+		int seriesCount = sharedPreferences.getInt(
+				PreferencesSupportActivity.CHART_KEY_COUNT, -1);
+		
 		if(Model.getReportsList() != null) {
 			LinearLayout layout = (LinearLayout) view;
-			if (layout != null) {
-				if (chart == null) {
+			if (seriesCount == 0) {
+				Toast.makeText(getActivity(), "No series added in properties", Toast.LENGTH_LONG).show();
+				return;
+			} else if (layout != null) {
+//				if (chart == null) {
 					layout.removeAllViews();
 					initChart();
 					updateDataset();
@@ -90,10 +98,10 @@ public class ChartFragment extends Fragment {
 							dataset, renderer);
 					layout.addView(chart);
 //					chart.repaint();
-				} else {
-					updateDataset();
-					chart.repaint();
-				}
+//				} else {
+//					updateDataset();
+//					chart.repaint();
+//				}
 			} else {
 				Log.e(getTag(), "Chart layout is null");
 			}
@@ -148,6 +156,10 @@ public class ChartFragment extends Fragment {
 		int seriesCount = sharedPreferences.getInt(
 				PreferencesSupportActivity.CHART_KEY_COUNT, -1);
 
+//		if (seriesCount == 0) {
+//			return;
+//		}
+		
 		List<XYSeries> seriesList = new ArrayList<XYSeries>(seriesCount);
 		List<Integer> usedColorList = new ArrayList<Integer>(seriesCount);
 
@@ -166,7 +178,6 @@ public class ChartFragment extends Fragment {
 						XYSeriesRenderer r = getRandomRenderer(usedColorList);
 						renderer.addSeriesRenderer(j, r);
 						
-						
 						renderer.setYLabelsColor(j, r.getColor());
 						if(j % 2 == 0) {
 							renderer.setYAxisAlign(Align.LEFT, j);
@@ -178,6 +189,8 @@ public class ChartFragment extends Fragment {
 					try {
 						seriesList.get(j).add(i,
 								Integer.valueOf(property.getValue()));
+//						seriesList.get(j).add(i,
+//								Integer.valueOf(property.getValue()) % 1000);
 					} catch (Exception e) {
 						Log.w(getTag(),
 								"Non numeric attribute selected for display in chart");

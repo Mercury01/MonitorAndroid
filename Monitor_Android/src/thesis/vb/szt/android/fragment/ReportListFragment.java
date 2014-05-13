@@ -11,8 +11,10 @@ import thesis.vb.szt.android.tasks.GetReportListTask;
 import thesis.vb.szt.android.tasks.GetReportListTask.GetReportListTaskCompleteListener;
 import thesis.vb.szt.android.utility.EndlessScrollListener;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -57,6 +59,9 @@ public class ReportListFragment extends ListFragment implements GetReportListTas
 
 	@Override
 	public void onResume() {
+		IntentFilter iff= new IntentFilter(HomeActivity.ACTION);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(onNotice, iff);
+		
 		completeListener = this;
 		ListView listView = getListView();
 		listView.setOnScrollListener(new EndlessScrollListener() {
@@ -70,6 +75,12 @@ public class ReportListFragment extends ListFragment implements GetReportListTas
 		super.onResume();
 	}
 
+	@Override
+	public void onPause() {
+		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(onNotice);
+		super.onPause();
+	}
+	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Bundle bundle = new Bundle();
@@ -154,8 +165,18 @@ public class ReportListFragment extends ListFragment implements GetReportListTas
 	public void onTaskComplete(List<Map<String, String>> result) {
 		Model.appendReportList(result);
 		adapter.notifyDataSetChanged();
-		Intent intent = new Intent(HomeActivity.ACTION);
-		Activity activity = getActivity();
-		LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
+		
+//		Intent intent = new Intent(HomeActivity.ACTION);
+//		Activity activity = getActivity();
+//		LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
 	}
+	
+	private BroadcastReceiver onNotice = new BroadcastReceiver() {
+
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	    	Log.i(getTag(), "Refresh broadcast received in report list fragment");
+	    	adapter.notifyDataSetChanged();
+	    }
+	};
 }
